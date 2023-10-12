@@ -1,0 +1,110 @@
+[
+  {
+    "code": "PT1",
+    "question": "Apakah anda mampu memahami sistem dan prosedur instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT2",
+    "question": "Apakah anda mampu memahami standar mutu instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT3",
+    "question": "Apakah anda mampu mengelola faktor resiko instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT4",
+    "question": "Apakah anda mampu memahami sistem dan prosedur pemeliharaan dan perbaikan instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT5",
+    "question": "Apakah anda mampu memahami sistem dan prosedur desain instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT6",
+    "question": "Apakah anda mampu memahami standar mutu desain instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT7",
+    "question": "Apakah anda mampu mengelola faktor resiko desain instalasi jaringan dan infrastruktur ?"
+  },
+  {
+    "code": "PT8",
+    "question": "Apakah anda mampu memahami sistem dan prosedur instalasi hardware ?"
+  },
+  {
+    "code": "PT9",
+    "question": "Apakah anda mampu memahami standar mutu instalasi hardware ?"
+  },
+  {
+    "code": "PT10",
+    "question": "Apakah anda mampu memahami sistem dan prosedur desain instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT11",
+    "question": "Apakah anda mampu memahami standar mutu desain instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT12",
+    "question": "Apakah anda mampu mengelola faktor resiko desain instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT13",
+    "question": "Apakah anda mampu memahami sistem dan prosedur instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT14",
+    "question": "Apakah anda mampu memahami standar mutu instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT15",
+    "question": "Apakah anda mampu mengelola faktor risiko instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT16",
+    "question": "Apakah anda mampu mengelola faktor risiko instalasi jaringan keras ?"
+  },
+  {
+    "code": "PT17",
+    "question": "Apakah anda mampu memahami sistem dan prosedur pembuatan aplikasi ?"
+  },
+  {
+    "code": "PT18",
+    "question": "Apakah anda mampu memahami standar mutu aplikasi ?"
+  },
+  {
+    "code": "PT19",
+    "question": "Apakah anda mampu mengelola faktor risiko penyedaan aplikasi ?"
+  },
+  {
+    "code": "PT20",
+    "question": "Apakah anda mampu memahami sistem dan prosedur bahasa program instalasi jaringan lunak ?"
+  },
+  {
+    "code": "PT21",
+    "question": "Apakah anda mampu memahami standar mutu instalasi jaringan lunak ?"
+  },
+  {
+    "code": "PT22",
+    "question": "Apakah anda mampu mengelola faktor risiko instalasi jaringan lunak ?"
+  },
+  {
+    "code": "PM1",
+    "question": "Apakah anda mampu memimpin ?"
+  },
+  {
+    "code": "PM2",
+    "question": "Apakah anda mampu melakukan koordinasi ?"
+  },
+  {
+    "code": "PS1",
+    "question": "Apakah anda mampu bekerjasama dan bersosialisasi ?"
+  },
+  {
+    "code": "PS2",
+    "question": "Apakah anda mampu berkomunikasi ?"
+  },
+  {
+    "code": "PS3",
+    "question": "Apakah anda memiliki fokus kerja dan berorientasi pada hasil kerja ?"
+  }
+]

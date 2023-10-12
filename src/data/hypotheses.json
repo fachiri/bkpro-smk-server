@@ -1,0 +1,38 @@
+[
+  {
+    "code": "H0",
+    "hypothesis": "No Qualifications"
+  },
+  {
+    "code": "H1",
+    "hypothesis": "Network Engineer"
+  },
+  {
+    "code": "H2",
+    "hypothesis": "Maintenance Engineer"
+  },
+  {
+    "code": "H3",
+    "hypothesis": "Network Designer"
+  },
+  {
+    "code": "H4",
+    "hypothesis": "Hardware Engineer"
+  },
+  {
+    "code": "H5",
+    "hypothesis": "Hardware Analyst"
+  },
+  {
+    "code": "H6",
+    "hypothesis": "Hardware Installer"
+  },
+  {
+    "code": "H7",
+    "hypothesis": "Software Engineer"
+  },
+  {
+    "code": "H8",
+    "hypothesis": "Programmer"
+  }
+]
