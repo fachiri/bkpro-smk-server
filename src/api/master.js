@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const multer = require('multer')
 const path = require('path')
-const fs = require('fs').promises;
+const fs = require('fs');
 
 const db = require('../models/index.js')
 const { majorCreate, validateStoreMaterial, validateUpdateMaterial } = require('../middlewares/validation.js')
@@ -364,10 +364,11 @@ router.put('/materials/:uuid',
         throw { message: 'Data tidak ditemukan' }
       }
 
-      if(filename) {
+      if (filename) {
         const filePath = `${keys.path.upload.materi}${data.file}`
-        await fs.access(filePath, fs.constants.F_OK);
-        await fs.unlink(filePath);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
       }
 
       data.update(
