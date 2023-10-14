@@ -31,6 +31,22 @@ const modelUtils = {
     });
 
     return competencies
+  },
+  getRedirect: (role) => {
+    console.log(role)
+    switch (role) {
+      case 'ADMIN':
+        return '/admin/dasbor'
+
+      case 'SISWA':
+        return '/dasbor'
+
+      case 'GURU':
+        return '/guru/dasbor'
+
+      default:
+        throw { code: 400, message: 'Role tidak valid' }
+    }
   }
 }
 

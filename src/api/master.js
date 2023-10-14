@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const db = require('../models/index.js')
+const { majorCreate } = require('../middlewares/validation.js')
 
 router.get('/majors', async (req, res) => {
   try {
@@ -26,7 +27,7 @@ router.get('/majors', async (req, res) => {
   }
 })
 
-router.post('/majors', async (req, res) => {
+router.post('/majors', majorCreate, async (req, res) => {
   try {
     const data = await db.Major.create(req.body)
 
@@ -60,6 +61,71 @@ router.put('/majors/:uuid', async (req, res) => {
       success: true,
       message: 'Data berhasil diedit',
       data: req.body
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+
+router.delete('/majors/:uuid', async (req, res) => {
+  try {
+    const major = await db.Major.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!major) {
+      throw { code: 404, message: 'Data jurusan tidak ditemukan' }
+    }
+
+    major.destroy()
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil dihapus',
+      data: {}
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+
+router.get('/majors/:uuid', async (req, res) => {
+  try {
+    const major = await db.Major.findOne({
+      where: {
+        uuid: req.params.uuid
+      },
+      attributes: {
+        exclude: ['id']
+      },
+      include: {
+        model: db.Profession,
+        attributes: {
+          exclude: ['id', 'majorId']
+        },
+      }
+    })
+
+    if (!major) {
+      throw { code: 404, message: 'Data jurusan tidak ditemukan' }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data: major
     })
   } catch (error) {
     console.log(error)
@@ -106,15 +172,42 @@ router.put('/professions/:uuid', async (req, res) => {
         }
       }
     )
-    
+
     if (affectedRows == 0) {
-      throw {message: 'Gagal mengedit data'} 
+      throw { message: 'Gagal mengedit data' }
     }
 
     res.status(200).json({
       success: true,
       message: 'Data berhasil diedit',
       data: req.body
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+
+router.get('/professions/:uuid', async (req, res) => {
+  try {
+    const profession = await db.Profession.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!profession) {
+      throw { code: 404, message: 'Data profesi tidak ditemukan' }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data: profession
     })
   } catch (error) {
     console.log(error)

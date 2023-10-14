@@ -25,7 +25,8 @@ try {
     defaults: {
       name: 'Muh. Fachry J.K. Luid',
       role: 'SISWA',
-      password: bcrypt.hashSync('pass1234')
+      password: bcrypt.hashSync('pass1234'),
+      majorId: 1
     }
   })
 

@@ -6,6 +6,7 @@ const router = express.Router()
 const { verifyToken } = require('./../middlewares/auth.js')
 const { secret } = require('./../config/keys')
 const db = require('../models')
+const { getRedirect } = require('../utils/model.util.js')
 
 router.post('/login', async (req, res) => {
   try {
@@ -27,6 +28,8 @@ router.post('/login', async (req, res) => {
       throw { code: 401, message: 'Nomor induk atau password salah.' }
     }
 
+    const redirect = getRedirect(user.role)
+
     const tokenJwt = jwt.sign(
       { 
         role,
@@ -46,7 +49,8 @@ router.post('/login', async (req, res) => {
           uuid: user.uuid,
           username: user.username
         },
-        token: tokenJwt
+        token: tokenJwt,
+        redirect
       }
     })
   } catch (error) {
@@ -70,7 +74,7 @@ router.get('/verify-token/:role', verifyToken, async (req, res) => {
     res.status(200).send({
       success: true,
       message: 'Akses berhasil.',
-      data: {}
+      data: req.user
     })
   } catch (error) {
     res.status(error.code || 500).send({
