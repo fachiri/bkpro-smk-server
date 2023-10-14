@@ -2,10 +2,12 @@ const express = require('express')
 const router = express.Router()
 const multer = require('multer')
 const path = require('path')
+const fs = require('fs').promises;
 
 const db = require('../models/index.js')
-const { majorCreate } = require('../middlewares/validation.js')
-const { randomFilename } = require('../utils/generate.util.js')
+const { majorCreate, validateStoreMaterial, validateUpdateMaterial } = require('../middlewares/validation.js')
+const { randomFilename, createSlug } = require('../utils/generate.util.js');
+const keys = require('../config/keys.js');
 
 router.get('/majors', async (req, res) => {
   try {
@@ -208,7 +210,7 @@ router.put('/professions/:uuid',
     try {
       const { filename } = req.file || {}
       const affectedRows = await db.Profession.update(
-        { ...req.body, ...{ file: filename} },
+        { ...req.body, ...{ file: filename } },
         {
           where: {
             uuid: req.params.uuid
@@ -233,6 +235,196 @@ router.put('/professions/:uuid',
         data: {}
       })
     }
-  })
+  }
+)
+
+// materials
+router.post('/materials',
+  [
+    multer({
+      storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, path.join(__dirname, '../../public/uploads/materi/'))
+        },
+        filename: function (req, file, cb) {
+          cb(null, randomFilename(file.originalname))
+        }
+      })
+    })
+      .single('file'),
+    validateStoreMaterial
+  ],
+  async (req, res) => {
+    try {
+      const { filename } = req.file || {}
+
+      if (!filename) {
+        throw { code: 400, message: 'Gagal mengupload file' }
+      }
+
+      const data = await db.Material.create({
+        title: req.body.title,
+        slug: createSlug(req.body.title),
+        desc: req.body.desc,
+        file: filename
+      })
+
+      res.status(200).json({
+        success: true,
+        message: 'Data berhasil ditambahkan',
+        data
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  }
+)
+router.get('/materials', async (req, res) => {
+  try {
+    const data = await db.Material.findAll({
+      attributes: { exclude: ['id'] },
+    })
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    data.map((e) => e.file = `${baseUrl}/uploads/materi/${e.file}`)
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.get('/materials/:uuid', async (req, res) => {
+  try {
+    const data = await db.Material.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    data.file = `${baseUrl}/uploads/materi/${data.file}`
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.put('/materials/:uuid',
+  [
+    multer({
+      storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, path.join(__dirname, '../../public/uploads/materi/'))
+        },
+        filename: function (req, file, cb) {
+          cb(null, randomFilename(file.originalname))
+        }
+      })
+    })
+      .single('file'),
+    validateUpdateMaterial
+  ],
+  async (req, res) => {
+    try {
+      const { filename } = req.file || {}
+      const data = await db.Material.findOne({
+        where: {
+          uuid: req.params.uuid
+        }
+      })
+
+      if (!data) {
+        throw { message: 'Data tidak ditemukan' }
+      }
+
+      if(filename) {
+        const filePath = `${keys.path.upload.materi}${data.file}`
+        await fs.access(filePath, fs.constants.F_OK);
+        await fs.unlink(filePath);
+      }
+
+      data.update(
+        { ...req.body, ...{ file: filename } },
+        {
+          where: {
+            uuid: req.params.uuid
+          }
+        }
+      )
+
+      res.status(200).json({
+        success: true,
+        message: 'Data berhasil diedit',
+        data: req.body
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  }
+)
+router.delete('/materials/:uuid', async (req, res) => {
+  try {
+    const data = await db.Material.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    const filePath = `${keys.path.upload.materi}${data.file}`
+    await fs.access(filePath, fs.constants.F_OK);
+    await fs.unlink(filePath);
+
+    data.destroy()
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil dihapus',
+      data: {}
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
 
 module.exports = router

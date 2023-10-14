@@ -1,3 +1,4 @@
+const path = require('path')
 require('dotenv').config();
 module.exports = {
   app: {
@@ -12,5 +13,10 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
   },
-  secret: process.env.TOKEN
+  secret: process.env.TOKEN,
+  path: {
+    upload: {
+      materi: path.join(__dirname, '../../public/uploads/materi/')
+    }
+  }
 };

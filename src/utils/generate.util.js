@@ -1,5 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+const slugify = require('slugify');
 
 const generateUtils = {
   randomString: (length) => {
@@ -18,6 +17,15 @@ const generateUtils = {
     const uniqueSuffix = `${Date.now()}${Math.round(Math.random() * 1E9)}`
 
     return `${uniqueSuffix}.${extension}`
+  },
+  createSlug: (string) => {
+    const slug = slugify(string, {
+      replacement: '-',
+      lower: true,
+      strict: true
+    });
+
+    return slug;
   }
 }
 
