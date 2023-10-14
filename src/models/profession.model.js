@@ -16,6 +16,10 @@ module.exports = (sequelize, Sequelize) => {
     desc: {
       type: Sequelize.TEXT,
       allowNull: true,
+    },
+    file: {
+      type: Sequelize.STRING,
+      allowNull: true,
     }
   })
 

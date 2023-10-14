@@ -1,8 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const multer = require('multer')
+const path = require('path')
 
 const db = require('../models/index.js')
 const { majorCreate } = require('../middlewares/validation.js')
+const { randomFilename } = require('../utils/generate.util.js')
 
 router.get('/majors', async (req, res) => {
   try {
@@ -137,6 +140,8 @@ router.get('/majors/:uuid', async (req, res) => {
   }
 })
 
+// professions
+
 router.get('/professions', async (req, res) => {
   try {
     const data = await db.Profession.findAll({
@@ -161,37 +166,6 @@ router.get('/professions', async (req, res) => {
     })
   }
 })
-
-router.put('/professions/:uuid', async (req, res) => {
-  try {
-    const affectedRows = await db.Profession.update(
-      { ...req.body },
-      {
-        where: {
-          uuid: req.params.uuid
-        }
-      }
-    )
-
-    if (affectedRows == 0) {
-      throw { message: 'Gagal mengedit data' }
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Data berhasil diedit',
-      data: req.body
-    })
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      data: {}
-    })
-  }
-})
-
 router.get('/professions/:uuid', async (req, res) => {
   try {
     const profession = await db.Profession.findOne({
@@ -218,5 +192,47 @@ router.get('/professions/:uuid', async (req, res) => {
     })
   }
 })
+router.put('/professions/:uuid',
+  multer({
+    storage: multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../public/uploads/profesi/'))
+      },
+      filename: function (req, file, cb) {
+        cb(null, randomFilename(file.originalname))
+      }
+    })
+  })
+    .single('file'),
+  async (req, res) => {
+    try {
+      const { filename } = req.file || {}
+      const affectedRows = await db.Profession.update(
+        { ...req.body, ...{ file: filename} },
+        {
+          where: {
+            uuid: req.params.uuid
+          }
+        }
+      )
+
+      if (affectedRows == 0) {
+        throw { message: 'Gagal mengedit data' }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Data berhasil diedit',
+        data: req.body
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  })
 
 module.exports = router
