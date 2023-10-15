@@ -33,7 +33,6 @@ const modelUtils = {
     return competencies
   },
   getRedirect: (role) => {
-    console.log(role)
     switch (role) {
       case 'ADMIN':
         return '/admin/dasbor'
@@ -47,6 +46,15 @@ const modelUtils = {
       default:
         throw { code: 400, message: 'Role tidak valid' }
     }
+  },
+  getUserIdbyUuid: async (uuid) => {
+    const user = await db.User.findOne({
+      where: {
+        uuid
+      }
+    })
+
+    return user.id
   }
 }
 

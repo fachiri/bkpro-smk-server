@@ -7,6 +7,8 @@ const auth = require('./auth')
 const user = require('./user')
 const master = require('./master')
 const materials = require('./materials')
+const tests = require('./tests')
+const { verifyToken } = require('../middlewares/auth')
 
 const router = express.Router()
 
@@ -18,5 +20,6 @@ router.use('/majors', majors)
 router.use('/professions', professions)
 router.use('/master', master)
 router.use('/materials', materials)
+router.use('/tests', verifyToken, tests)
 
 module.exports = router
