@@ -90,5 +90,56 @@ module.exports = {
         data: {}
       })
     }
+  },
+  validateCreateCounseling: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        subject: Joi.string().required().messages({
+          'string.empty': 'Subjek konseling harus diisi'
+        }),
+        content: Joi.string().required().messages({
+          'string.empty': 'Isian konseling harus diisi'
+        })
+      });
+
+      const { subject, content } = req.body
+      
+      await schema.validateAsync({ subject, content })
+      
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  },
+  validateResetPassword: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        old_password: Joi.string().required().messages({
+          'string.empty': 'Password lama harus diisi',
+        }),
+        new_password: Joi.string().min(6).required().messages({
+          'string.min': 'Password baru harus memiliki setidaknya {#limit} karakter',
+          'string.empty': 'Password baru harus diisi'
+        }),
+        repeat_password: Joi.any().valid(Joi.ref('new_password')).required().messages({
+          'any.only': 'Konfirmasi password harus sama dengan password baru',
+          'any.required': 'Konfirmasi password harus diisi'
+        })
+      });
+      
+      await schema.validateAsync(req.body)
+      
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
   }
 }
