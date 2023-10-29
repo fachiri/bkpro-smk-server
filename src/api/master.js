@@ -3,6 +3,7 @@ const router = express.Router()
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs');
+const bcrypt = require('bcryptjs')
 
 const db = require('../models/index.js')
 const { majorCreate, validateStoreMaterial, validateUpdateMaterial } = require('../middlewares/validation.js')
@@ -410,6 +411,140 @@ router.delete('/materials/:uuid', async (req, res) => {
     const filePath = `${keys.path.upload.materi}${data.file}`
     await fs.access(filePath, fs.constants.F_OK);
     await fs.unlink(filePath);
+
+    data.destroy()
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil dihapus',
+      data: {}
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+
+// users
+router.post('/users', async (req, res) => {
+  try {
+    const { name, role, master_number, password } = req.body
+
+    const data = await db.User.create({
+      name,
+      role,
+      master_number,
+      password: bcrypt.hashSync(password.length === 0 ? master_number : password)
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditambahkan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+}
+)
+router.get('/users', async (req, res) => {
+  try {
+    const data = await db.User.findAll({
+      attributes: { exclude: ['id'] },
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.get('/users/:uuid', async (req, res) => {
+  try {
+    const data = await db.User.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.put('/users/:uuid', async (req, res) => {
+  try {
+    const data = await db.User.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { message: 'Data tidak ditemukan' }
+    }
+
+    data.update(req.body)
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil diedit',
+      data: req.body
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.delete('/users/:uuid', async (req, res) => {
+  try {
+    const data = await db.User.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    if (data.role == 'ADMIN') {
+      throw { code: 404, message: 'Data admin tidak bisa dihapus' }
+    }
 
     data.destroy()
 

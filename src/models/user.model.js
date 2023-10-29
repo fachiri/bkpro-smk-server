@@ -11,7 +11,8 @@ module.exports = (sequelize, Sequelize) => {
     },
     email: {
       type: Sequelize.CHAR(30),
-      unique: true
+      unique: true,
+      allowNull: true
     },
     master_number: {
       type: Sequelize.CHAR(20),
