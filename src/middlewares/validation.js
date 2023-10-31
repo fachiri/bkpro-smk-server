@@ -141,5 +141,78 @@ module.exports = {
         data: {}
       })
     }
+  },
+  validateStoreUser: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        name: Joi.string().required().messages({
+          'string.empty': 'Nama harus diisi'
+        }),
+        role: Joi.string().required().messages({
+          'string.empty': 'Role harus diisi'
+        }),
+        master_number: Joi.string().required().messages({
+          'string.empty': 'Nomor induk harus diisi'
+        }),
+        password: Joi.string().allow(null, ''),
+        major: Joi.string().allow(null, ''),
+      });
+      await schema.validateAsync(req.body)
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  },
+  validateImportUser: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        major: Joi.string().required().messages({
+          'string.empty': 'Pilih Jurusan',
+          'any.required': 'Pilih Jurusan'
+        }),
+        file: Joi.any().required().messages({
+          'any.required': 'Pilih File'
+        })
+      });
+      await schema.validateAsync({
+        major: req.body.major,
+        file: req.file
+      })
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  },
+  validateLogin: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        role: Joi.string().required().messages({
+          'string.empty': 'Pilih role'
+        }),
+        masterNumber: Joi.string().required().messages({
+          'string.empty': 'Username harus diisi'
+        }),
+        password: Joi.string().required().messages({
+          'string.empty': 'Password harus diisi'
+        }),
+        remember: Joi.boolean()
+      });
+      await schema.validateAsync(req.body)
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
   }
 }

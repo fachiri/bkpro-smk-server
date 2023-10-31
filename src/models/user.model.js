@@ -9,10 +9,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING(30),
       allowNull: false
     },
-    email: {
+    username: {
       type: Sequelize.CHAR(30),
       unique: true,
-      allowNull: true
+      allowNull: false
     },
     master_number: {
       type: Sequelize.CHAR(20),
@@ -31,6 +31,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
     avatar: {
+      type: Sequelize.STRING
+    },
+    class: {
       type: Sequelize.STRING
     }
   })

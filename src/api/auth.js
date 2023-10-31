@@ -7,17 +7,21 @@ const { verifyToken } = require('./../middlewares/auth.js')
 const { secret } = require('./../config/keys')
 const db = require('../models')
 const { getRedirect } = require('../utils/model.util.js')
+const { validateLogin } = require('../middlewares/validation.js')
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateLogin, async (req, res) => {
   try {
     const { role, masterNumber, password, remember } = req.body
 
     const user = await db.User.findOne({
       where: {
         role,
-        master_number: masterNumber
+        [db.Sequelize.Op.or]: [
+          { username: masterNumber },
+          { master_number: masterNumber }
+        ]
       }
-    })
+    });
 
     if (!user) {
       throw { code: 401, message: 'Nomor induk atau password salah.' }

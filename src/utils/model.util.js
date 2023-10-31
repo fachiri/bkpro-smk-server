@@ -1,4 +1,5 @@
 const db = require('../models');
+const xlsx = require('xlsx');
 
 const modelUtils = {
   getCompetenciesByMajor: async (majorId, codes) => {
@@ -55,6 +56,15 @@ const modelUtils = {
     })
 
     return user.id
+  },
+  readExcel: (fileBuffer) => {
+    const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+    const sheetNames = workbook.SheetNames;
+    const firstSheetName = sheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+
+    return xlsx.utils.sheet_to_json(worksheet);
+
   }
 }
 

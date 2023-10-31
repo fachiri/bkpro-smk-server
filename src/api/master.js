@@ -6,9 +6,10 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs')
 
 const db = require('../models/index.js')
-const { majorCreate, validateStoreMaterial, validateUpdateMaterial } = require('../middlewares/validation.js')
+const { majorCreate, validateStoreMaterial, validateUpdateMaterial, validateStoreUser, validateImportUser } = require('../middlewares/validation.js')
 const { randomFilename, createSlug } = require('../utils/generate.util.js');
 const keys = require('../config/keys.js');
+const { readExcel } = require('../utils/model.util.js');
 
 router.get('/majors', async (req, res) => {
   try {
@@ -430,15 +431,21 @@ router.delete('/materials/:uuid', async (req, res) => {
 })
 
 // users
-router.post('/users', async (req, res) => {
+router.post('/users', validateStoreUser, async (req, res) => {
   try {
-    const { name, role, master_number, password } = req.body
+    const { name, role, master_number, password, major } = req.body
+
+    if (role == 'SISWA' && !major) {
+      throw { code: 400, message: 'Jurusan tidak valid' }
+    }
 
     const data = await db.User.create({
       name,
       role,
       master_number,
-      password: bcrypt.hashSync(password.length === 0 ? master_number : password)
+      username: master_number,
+      password: bcrypt.hashSync(password.length === 0 ? master_number : password),
+      majorId: major || null
     })
 
     res.status(200).json({
@@ -448,19 +455,74 @@ router.post('/users', async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(500).json({
+    res.status(error.code || 500).json({
       success: false,
       message: error.message,
       data: {}
     })
   }
-}
-)
+})
+
+router.post('/users/import', [
+  multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 2 * 1024 * 1024,
+    },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype === 'application/vnd.ms-excel' || file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        cb(null, true);
+      } else {
+        cb(new Error('File harus berupa file Excel (.xls, .xlsx)'));
+      }
+    }
+  }).single('file'), validateImportUser
+], async (req, res) => {
+  try {
+    const users = readExcel(req.file.buffer)
+
+    users.forEach(user => {
+      db.User.findOrCreate({
+        where: { master_number: user.NISN },
+        defaults: {
+          name: user.NAMA,
+          username: user.NISN,
+          class: user.KELAS,
+          role: 'SISWA',
+          password: bcrypt.hashSync(`${user.NISN}`),
+          majorId: req.body.major
+        }
+      })
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditambahkan',
+      data: users
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(error.code || 500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
 router.get('/users', async (req, res) => {
   try {
+    const { role } = req.query;
+    let where = {}
+
+    if (role) {
+      where.role = role
+    }
+
     const data = await db.User.findAll({
       attributes: { exclude: ['id'] },
-    })
+      include: db.Major,
+      where
+    });
 
     res.status(200).json({
       success: true,
@@ -481,7 +543,8 @@ router.get('/users/:uuid', async (req, res) => {
     const data = await db.User.findOne({
       where: {
         uuid: req.params.uuid
-      }
+      },
+      include: db.Major
     })
 
     if (!data) {

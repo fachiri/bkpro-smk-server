@@ -11,6 +11,16 @@ const createProfessionCompetency = (professionId, competencyId) => {
 }
 
 try {
+  db.User.findOrCreate({
+    where: { username: 'admin' },
+    defaults: {
+      master_number: 'admin',
+      name: 'Admin',
+      role: 'ADMIN',
+      password: bcrypt.hashSync('admin')
+    }
+  })
+
   db.Major.findOrCreate({
     where: { code: 'M1' },
     defaults: { major: 'TKJ' }
@@ -297,25 +307,6 @@ try {
   db.Major.findOrCreate({
     where: { code: 'M3' },
     defaults: { major: 'MULTIMEDIA' }
-  })
-
-  db.User.findOrCreate({
-    where: { master_number: '1234567890' },
-    defaults: {
-      name: 'Admin',
-      role: 'ADMIN',
-      password: bcrypt.hashSync('admin')
-    }
-  })
-
-  db.User.findOrCreate({
-    where: { master_number: '0987654321' },
-    defaults: {
-      name: 'Muh. Fachry J.K. Luid',
-      role: 'SISWA',
-      password: bcrypt.hashSync('pass1234'),
-      majorId: 1
-    }
   })
 } catch (error) {
   console.log('Terjadi kesalahan saat melakukan seed')
