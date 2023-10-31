@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
       attributes: { exclude: ['id'] }
     })
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BASE_URL;
     data.map((e) => e.file = `${baseUrl}/uploads/materi/${e.file}`)
 
     res.status(200).json({
@@ -39,7 +39,7 @@ router.get('/:uuid', async (req, res) => {
       throw { code: 404, message: 'Data tidak ditemukan' }
     }
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BASE_URL;
     data.file = `${baseUrl}/uploads/materi/${data.file}`
 
     res.status(200).json({
