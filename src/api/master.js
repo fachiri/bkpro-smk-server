@@ -6,10 +6,10 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs')
 
 const db = require('../models/index.js')
-const { majorCreate, validateStoreMaterial, validateUpdateMaterial, validateStoreUser, validateImportUser } = require('../middlewares/validation.js')
+const { majorCreate, validateStoreMaterial, validateUpdateMaterial, validateStoreUser, validateImportUser, validateCreateProfession } = require('../middlewares/validation.js')
 const { randomFilename, createSlug } = require('../utils/generate.util.js');
 const keys = require('../config/keys.js');
-const { readExcel } = require('../utils/model.util.js');
+const { readExcel, getUserIdbyUuid } = require('../utils/model.util.js');
 
 router.get('/majors', async (req, res) => {
   try {
@@ -33,7 +33,6 @@ router.get('/majors', async (req, res) => {
     })
   }
 })
-
 router.post('/majors', majorCreate, async (req, res) => {
   try {
     const data = await db.Major.create(req.body)
@@ -52,6 +51,47 @@ router.post('/majors', majorCreate, async (req, res) => {
     })
   }
 })
+router.post('/majors/:uuid',
+  [
+    multer({
+    storage: multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../public/uploads/profesi/'))
+      },
+      filename: function (req, file, cb) {
+        cb(null, randomFilename(file.originalname))
+      }
+    })
+  })
+    .single('file'),
+    validateCreateProfession
+  ],
+  async (req, res) => {
+    try {
+      const { filename } = req.file || {}
+      const major = await db.Major.findOne({ where: { uuid: req.params.uuid } })
+      const data = await db.Profession.create({
+        code: req.body.code,
+        profession: req.body.profession,
+        desc: req.body.desc,
+        file: filename,
+        majorId: major.id
+      })
+
+      res.status(200).json({
+        success: true,
+        message: 'Data berhasil ditambahkan',
+        data
+      })
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  })
 
 router.put('/majors/:uuid', async (req, res) => {
   try {
@@ -594,6 +634,119 @@ router.put('/users/:uuid', async (req, res) => {
   }
 })
 router.delete('/users/:uuid', async (req, res) => {
+  try {
+    const data = await db.User.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    if (data.role == 'ADMIN') {
+      throw { code: 404, message: 'Data admin tidak bisa dihapus' }
+    }
+
+    data.destroy()
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil dihapus',
+      data: {}
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+
+router.get('/counselings', async (req, res) => {
+  try {
+    const data = await db.Counseling.findAll({
+      attributes: { exclude: ['id'] },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.get('/counselings/:uuid', async (req, res) => {
+  try {
+    const data = await db.Counseling.findOne({
+      where: {
+        uuid: req.params.uuid,
+      },
+      attributes: { exclude: ['id'] },
+      include: {
+        model: db.Chat,
+        include: db.User
+      }
+    })
+
+    if (!data) {
+      throw { code: 404, message: 'Data tidak ditemukan' }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil ditemukan',
+      data,
+      userId: await getUserIdbyUuid(req.user.uuid)
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.put('/counselings/:uuid', async (req, res) => {
+  try {
+    const data = await db.Counseling.findOne({
+      where: {
+        uuid: req.params.uuid
+      }
+    })
+
+    if (!data) {
+      throw { message: 'Data tidak ditemukan' }
+    }
+
+    data.update(req.body)
+
+    res.status(200).json({
+      success: true,
+      message: 'Data berhasil diedit',
+      data: req.body
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: {}
+    })
+  }
+})
+router.delete('/counselings/:uuid', async (req, res) => {
   try {
     const data = await db.User.findOne({
       where: {

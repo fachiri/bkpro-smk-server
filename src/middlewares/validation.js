@@ -49,10 +49,10 @@ module.exports = {
       });
 
       if (!req.file) {
-        throw {code: 400, message: 'File materi harus diisi'}
+        throw { code: 400, message: 'File materi harus diisi' }
       }
-      
-      await schema.validateAsync({...req.body, ...{size: req.file.size}})
+
+      await schema.validateAsync({ ...req.body, ...{ size: req.file.size } })
 
       next()
     } catch (error) {
@@ -79,9 +79,9 @@ module.exports = {
 
       const { size } = req.file || {}
       const { title, desc } = req.body
-      
+
       await schema.validateAsync({ title, desc, size })
-      
+
       next()
     } catch (error) {
       res.status(error.code || 500).send({
@@ -103,9 +103,9 @@ module.exports = {
       });
 
       const { subject, content } = req.body
-      
+
       await schema.validateAsync({ subject, content })
-      
+
       next()
     } catch (error) {
       res.status(error.code || 500).send({
@@ -130,9 +130,9 @@ module.exports = {
           'any.required': 'Konfirmasi password harus diisi'
         })
       });
-      
+
       await schema.validateAsync(req.body)
-      
+
       next()
     } catch (error) {
       res.status(error.code || 500).send({
@@ -214,5 +214,33 @@ module.exports = {
         data: {}
       })
     }
-  }
+  },
+  validateCreateProfession: async (req, res, next) => {
+    try {
+      const schema = Joi.object({
+        code: Joi.string().required().messages({
+          'string.empty': 'Kode profesi harus diisi'
+        }),
+        profession: Joi.string().required().messages({
+          'string.empty': 'Nama profesi harus diisi'
+        }),
+        size: Joi.number().max(25 * 1024 * 1024).allow(null).messages({
+          'number.max': 'Ukuran file maksimal 25 MB'
+        })
+      });
+
+      const { size } = req.file || {}
+      const { code, profession } = req.body
+
+      await schema.validateAsync({size, code, profession})
+
+      next()
+    } catch (error) {
+      res.status(error.code || 500).send({
+        success: false,
+        message: error.message,
+        data: {}
+      })
+    }
+  },
 }

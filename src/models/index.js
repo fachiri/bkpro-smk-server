@@ -23,6 +23,7 @@ db.Material = require("./material.model.js")(sequelize, Sequelize)
 db.Test = require("./test.model.js")(sequelize, Sequelize)
 db.TestFacts = require("./testfacts.model.js")(sequelize, Sequelize)
 db.Counseling = require("./counseling.model.js")(sequelize, Sequelize)
+db.Chat = require("./chat.model.js")(sequelize, Sequelize)
 
 db.Major.hasMany(db.Profession)
 db.Profession.belongsTo(db.Major)
@@ -34,5 +35,9 @@ db.Test.belongsTo(db.User)
 db.Test.hasMany(db.TestFacts)
 db.User.hasMany(db.Counseling)
 db.Counseling.belongsTo(db.User)
+db.User.hasMany(db.Chat)
+db.Chat.belongsTo(db.User)
+db.Counseling.hasMany(db.Chat)
+db.Chat.belongsTo(db.Counseling)
 
 module.exports = db

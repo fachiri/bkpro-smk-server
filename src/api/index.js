@@ -13,6 +13,7 @@ const tests = require('./tests')
 const counseling = require('./counseling')
 const dashboard = require('./dashboard')
 const settings = require('./settings')
+const chat = require('./chat')
 
 const { verifyToken } = require('../middlewares/auth')
 
@@ -28,5 +29,6 @@ router.use('/tests', verifyToken, tests)
 router.use('/counseling', verifyToken, counseling)
 router.use('/dashboard', verifyToken, dashboard)
 router.use('/setting', verifyToken, settings)
+router.use('/chat', verifyToken, chat)
 
 module.exports = router

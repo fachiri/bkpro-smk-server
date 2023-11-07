@@ -14,7 +14,7 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false
     },
     status: {
-      type: Sequelize.CHAR(10),
+      type: Sequelize.CHAR(20),
       allowNull: false,
       defaultValue: "PENDING"
     }

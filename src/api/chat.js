@@ -3,7 +3,6 @@ const router = express.Router()
 
 const db = require('../models')
 const { getUserIdbyUuid } = require('../utils/model.util')
-const { validateCreateCounseling } = require('../middlewares/validation')
 
 router.get('/', async (req, res) => {
   try {
@@ -23,8 +22,7 @@ router.get('/', async (req, res) => {
       data
     })
   } catch (error) {
-    console.log(error)
-    res.status(error.code || 500).send({
+    res.status(error.code || 500).json({
       success: false,
       message: error.message,
       data: {}
@@ -39,10 +37,7 @@ router.get('/:uuid', async (req, res) => {
         uuid: req.params.uuid,
       },
       attributes: { exclude: ['id'] },
-      include: {
-        model: db.Chat,
-        include: db.User
-      }
+      include: db.Chat
     })
 
     if (!data) {
@@ -52,12 +47,10 @@ router.get('/:uuid', async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Data berhasil ditemukan',
-      data,
-      userId: await getUserIdbyUuid(req.user.uuid)
+      data
     })
   } catch (error) {
-    console.log(error)
-    res.status(500).json({
+    res.status(error.code || 500).json({
       success: false,
       message: error.message,
       data: {}
@@ -65,24 +58,27 @@ router.get('/:uuid', async (req, res) => {
   }
 })
 
-router.post('/', validateCreateCounseling, async (req, res) => {
+router.post('/:uuid', async (req, res) => {
   try {
-    const { subject, content } = req.body
-    const userId = await getUserIdbyUuid(req.user.uuid)
+    if (req.body.chat == '') {
+      throw {code: 400, message: 'Tulis pesan!'}
+    }
 
-    const data = await db.Counseling.create({
-      subject, content,
-      userId
+    const counseling = await db.Counseling.findOne({ where: { uuid: req.params.uuid } })
+
+    const data = await db.Chat.create({
+      chat: req.body.chat,
+      userId: await getUserIdbyUuid(req.user.uuid),
+      counselingId: counseling.id
     })
 
     res.status(200).json({
       success: true,
-      message: 'Data berhasil ditambahkan',
+      message: 'Pesan berhasil dikirim',
       data
     })
   } catch (error) {
-    console.log(error)
-    res.status(500).json({
+    res.status(error.code || 500).json({
       success: false,
       message: error.message,
       data: {}
